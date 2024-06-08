@@ -9,15 +9,12 @@ import (
 	log "github.com/sirupsen/logrus"
 
 	"github.com/joshryandavis/songbird/internal/cli"
-	"github.com/joshryandavis/songbird/internal/client/models"
 )
 
-const DateFormat = "2006-01-02 15:04"
-
-func (c *Client) WalkTransactions(ac *ApiClient, start time.Time, end time.Time, newOnly bool) error {
+func (c *Client) WalkItems(ac *Api, start time.Time, end time.Time, newOnly bool) error {
 	acc := ac.Account
-	log.Println("getting transactions from", start, "to", end)
-	trans, err := c.GetTransactions(ac.Client, acc, end)
+	log.Println("getting items from", start, "to", end)
+	trans, err := c.GetItems(ac.Client, acc, end)
 	if err != nil {
 		return err
 	}
@@ -26,7 +23,7 @@ func (c *Client) WalkTransactions(ac *ApiClient, start time.Time, end time.Time,
 			log.Println("skipping client", t.UID, "as it is not new.")
 			continue
 		}
-		printTransaction(t)
+		printItem(t)
 		updatedNote := promptNoteUpdate(t.Note)
 		if updatedNote == t.Note {
 			log.Println("note is the same, skipping update")
@@ -48,7 +45,7 @@ func noteUpdatedInDateRange(updated time.Time, start time.Time, end time.Time) b
 	return updated.After(start) && updated.Before(end)
 }
 
-func promptNoteUpdate(note models.Note) models.Note {
+func promptNoteUpdate(note Note) Note {
 	f := reflect.ValueOf(&note).Elem()
 	for i := 0; i < f.NumField(); i++ {
 		field := f.Field(i)
@@ -63,14 +60,14 @@ func promptNoteUpdate(note models.Note) models.Note {
 	return note
 }
 
-func printTransaction(t models.Transaction) {
+func printItem(t Item) {
 	fmt.Println(" ")
-	fmt.Println(t.Created.Format(DateFormat), t.CounterParty.Name, t.Amount)
+	fmt.Println(t.Created.Format(cli.OutputDateFormat), t.CounterParty.Name, t.Amount)
 	fmt.Println("Spend Category:", t.SpendingCategory)
 	if t.Note.Updated == (time.Time{}) {
 		fmt.Println("note updated: never")
 	} else {
-		fmt.Println("note updated:", t.Note.Updated.Format(DateFormat))
+		fmt.Println("note updated:", t.Note.Updated.Format(cli.OutputDateFormat))
 	}
 	fmt.Println(" ")
 }

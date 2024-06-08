@@ -7,31 +7,31 @@ import (
 )
 
 type Client struct {
-	Cfg     config.Config
-	Clients []ApiClient
+	Cfg config.Cfg
+	Api []Api
 }
 
-type ApiClient struct {
-	Account starling.Account
+type Api struct {
 	Token   string
+	Account starling.Account
 	Client  *starling.Client
 }
 
-func New(tokens []string, cfg config.Config) *Client {
+func New(tokens []string, cfg config.Cfg) *Client {
 	ret := new(Client)
 	ret.Cfg = cfg
 	for _, token := range tokens {
-		ret.Clients = append(ret.Clients, ApiClient{
+		ret.Api = append(ret.Api, Api{
 			Token:  token,
 			Client: starling.New(token),
 		})
 	}
-	for i := range ret.Clients {
-		account, err := GetPrimary(ret.Clients[i].Client)
+	for i := range ret.Api {
+		account, err := GetPrimary(ret.Api[i].Client)
 		if err != nil {
 			continue
 		}
-		ret.Clients[i].Account = account
+		ret.Api[i].Account = account
 	}
 	return ret
 }

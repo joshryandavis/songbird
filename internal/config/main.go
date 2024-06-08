@@ -14,7 +14,7 @@ type Category struct {
 	Auto   []string `json:"auto"`
 }
 
-type Config struct {
+type Cfg struct {
 	Categories []Category `json:"categories"`
 }
 
@@ -24,8 +24,8 @@ const (
 	TokensFile = "tokens.json"
 )
 
-func LoadConfig() (Config, error) {
-	var ret Config
+func LoadConfig() (Cfg, error) {
+	var ret Cfg
 	homeDirectory, err := os.UserHomeDir()
 	if err != nil {
 		return ret, err
@@ -46,8 +46,8 @@ func LoadConfig() (Config, error) {
 	return ret, nil
 }
 
-func createNewConfig(homePath string) (Config, error) {
-	var ret Config
+func createNewConfig(homePath string) (Cfg, error) {
+	var ret Cfg
 	ret.Categories = []Category{}
 	err := os.MkdirAll(homePath+"/"+Directory, 0755)
 	if err != nil {
