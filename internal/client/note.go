@@ -5,12 +5,12 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/joshryandavis/songbird/internal/client/models"
 	"github.com/joshryandavis/songbird/starling"
-	"github.com/joshryandavis/songbird/starling/stmodels"
+
+	"github.com/joshryandavis/songbird/internal/client/models"
 )
 
-func UpdateNote(n models.Note, c *starling.Client, acc stmodels.Account, tUID string, categoryUID string, newNote models.Note) (models.Note, error) {
+func UpdateNote(n models.Note, c *starling.Client, acc starling.Account, tUID string, categoryUID string, newNote models.Note) (models.Note, error) {
 	var rec = n
 	if newNote == n {
 		log.WithFields(log.Fields{

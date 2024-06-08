@@ -3,12 +3,10 @@ package starling
 import (
 	"encoding/json"
 	"fmt"
-
-	"github.com/joshryandavis/songbird/starling/stmodels"
 )
 
-func (c *Client) GetConfirmationOfFunds(a *stmodels.Account, amountMinorUnits int64) (stmodels.ConfirmationOfFunds, error) {
-	var ret stmodels.ConfirmationOfFunds
+func (c *Client) GetConfirmationOfFunds(a *Account, amountMinorUnits int64) (ConfirmationOfFunds, error) {
+	var ret ConfirmationOfFunds
 	url := AccountEndpoint(a.AccountUID, fmt.Sprintf("%s/%s/%d", ConfirmationOfFundsEndpoint, a.AccountUID, amountMinorUnits))
 	res, err := c.Request("GET", url, "")
 	if err != nil {

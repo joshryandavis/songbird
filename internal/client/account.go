@@ -4,11 +4,10 @@ import (
 	"fmt"
 
 	"github.com/joshryandavis/songbird/starling"
-	"github.com/joshryandavis/songbird/starling/stmodels"
 )
 
-func GetPrimary(c *starling.Client) (stmodels.Account, error) {
-	var ret stmodels.Account
+func GetPrimary(c *starling.Client) (starling.Account, error) {
+	var ret starling.Account
 	accounts, err := c.GetAccounts()
 	if err != nil {
 		return ret, err

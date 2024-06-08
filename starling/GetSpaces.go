@@ -2,12 +2,10 @@ package starling
 
 import (
 	"encoding/json"
-
-	"github.com/joshryandavis/songbird/starling/stmodels"
 )
 
-func (c *Client) GetSpaces(a *stmodels.Account) (stmodels.Spaces, error) {
-	var ret stmodels.Spaces
+func (c *Client) GetSpaces(a *Account) (Spaces, error) {
+	var ret Spaces
 	url := AccountEndpoint(a.AccountUID, SpacesEndpoint)
 	res, err := c.Request("GET", url, "")
 	if err != nil {

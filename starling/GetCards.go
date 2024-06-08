@@ -2,18 +2,16 @@ package starling
 
 import (
 	"encoding/json"
-
-	"github.com/joshryandavis/songbird/starling/stmodels"
 )
 
-func (c *Client) GetCards() ([]stmodels.Card, error) {
-	var ret []stmodels.Card
+func (c *Client) GetCards() ([]Card, error) {
+	var ret []Card
 	url := BaseEndpoint(CardsEndpoint)
 	res, err := c.Request("GET", url, "")
 	if err != nil {
 		return ret, err
 	}
-	var wrapper stmodels.Cards
+	var wrapper Cards
 	err = json.Unmarshal(res, &wrapper)
 	if err != nil {
 		return ret, err

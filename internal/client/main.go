@@ -1,9 +1,9 @@
 package client
 
 import (
-	"github.com/joshryandavis/songbird/internal/config"
 	"github.com/joshryandavis/songbird/starling"
-	"github.com/joshryandavis/songbird/starling/stmodels"
+
+	"github.com/joshryandavis/songbird/internal/config"
 )
 
 type Client struct {
@@ -12,7 +12,7 @@ type Client struct {
 }
 
 type ApiClient struct {
-	Account stmodels.Account
+	Account starling.Account
 	Token   string
 	Client  *starling.Client
 }

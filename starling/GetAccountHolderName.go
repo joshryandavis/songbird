@@ -2,12 +2,10 @@ package starling
 
 import (
 	"encoding/json"
-
-	"github.com/joshryandavis/songbird/starling/stmodels"
 )
 
-func (c *Client) GetAccountHolderName() (stmodels.AccountHolderName, error) {
-	var ret stmodels.AccountHolderName
+func (c *Client) GetAccountHolderName() (AccountHolderName, error) {
+	var ret AccountHolderName
 	url := BaseEndpoint(AccountHolderEndpoint)
 	res, err := c.Request("GET", url, "")
 	if err != nil {

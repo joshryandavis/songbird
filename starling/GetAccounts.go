@@ -5,12 +5,10 @@ import (
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
-
-	"github.com/joshryandavis/songbird/starling/stmodels"
 )
 
-func (c *Client) GetAccounts() ([]stmodels.Account, error) {
-	var ret []stmodels.Account
+func (c *Client) GetAccounts() ([]Account, error) {
+	var ret []Account
 	url := fmt.Sprintf("%s/%s", BaseUrlProd, AccountsEndpoint)
 	res, err := c.Request("GET", url, "")
 	log.Printf("request: %s", res)
@@ -18,7 +16,7 @@ func (c *Client) GetAccounts() ([]stmodels.Account, error) {
 		log.Panic("request error:", err)
 		return ret, err
 	}
-	var wrapper stmodels.Accounts
+	var wrapper Accounts
 	err = json.Unmarshal(res, &wrapper)
 	if err != nil {
 		log.Panic("json unmarshal error:", err)

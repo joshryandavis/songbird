@@ -2,12 +2,10 @@ package starling
 
 import (
 	"encoding/json"
-
-	"github.com/joshryandavis/songbird/starling/stmodels"
 )
 
-func (c *Client) GetAccountIdentifiers(a *stmodels.Account) (stmodels.AccountIdentifiers, error) {
-	var ret stmodels.AccountIdentifiers
+func (c *Client) GetAccountIdentifiers(a *Account) (AccountIdentifiers, error) {
+	var ret AccountIdentifiers
 	url := AccountEndpoint(a.AccountUID, IdentifiersEndpoint)
 	res, err := c.Request("GET", url, "")
 	if err != nil {

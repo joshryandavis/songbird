@@ -7,12 +7,12 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/joshryandavis/songbird/internal/client/models"
 	"github.com/joshryandavis/songbird/starling"
-	"github.com/joshryandavis/songbird/starling/stmodels"
+
+	"github.com/joshryandavis/songbird/internal/client/models"
 )
 
-func (c *Client) GetTransactions(ac *starling.Client, acc stmodels.Account, dt time.Time) ([]models.Transaction, error) {
+func (c *Client) GetTransactions(ac *starling.Client, acc starling.Account, dt time.Time) ([]models.Transaction, error) {
 	var err error
 	var ret []models.Transaction
 	log.Println("getting direct debit mandates")
@@ -38,7 +38,7 @@ func (c *Client) GetTransactions(ac *starling.Client, acc stmodels.Account, dt t
 			continue
 		}
 		wg.Add(1)
-		go func(t stmodels.FeedItem) {
+		go func(t starling.FeedItem) {
 			defer wg.Done()
 			newT, err := processTransaction(ac, acc, recurring, dd, t, c)
 			if err != nil {
@@ -51,7 +51,7 @@ func (c *Client) GetTransactions(ac *starling.Client, acc stmodels.Account, dt t
 	return ret, nil
 }
 
-func processTransaction(ac *starling.Client, acc stmodels.Account, recurring []stmodels.RecurringCardPayment, dd []stmodels.DirectDebitMandate, t stmodels.FeedItem, c *Client) (models.Transaction, error) {
+func processTransaction(ac *starling.Client, acc starling.Account, recurring []starling.RecurringCardPayment, dd []starling.DirectDebitMandate, t starling.FeedItem, c *Client) (models.Transaction, error) {
 	ret := models.Transaction{}
 	note, err := getNote(t)
 	if err != nil {
@@ -88,7 +88,7 @@ func processTransaction(ac *starling.Client, acc stmodels.Account, recurring []s
 	return ret, nil
 }
 
-func getRecurringId(recurring []stmodels.RecurringCardPayment, feedItemUID string) string {
+func getRecurringId(recurring []starling.RecurringCardPayment, feedItemUID string) string {
 	for _, r := range recurring {
 		if r.FeedItemUID == feedItemUID {
 			return r.RecurringPaymentUID
@@ -97,7 +97,7 @@ func getRecurringId(recurring []stmodels.RecurringCardPayment, feedItemUID strin
 	return ""
 }
 
-func getDirectDebitId(dd []stmodels.DirectDebitMandate, reference string, originatorName string) string {
+func getDirectDebitId(dd []starling.DirectDebitMandate, reference string, originatorName string) string {
 	for _, d := range dd {
 		if d.Reference == reference && d.OriginatorName == originatorName {
 			return d.UID
@@ -106,7 +106,7 @@ func getDirectDebitId(dd []stmodels.DirectDebitMandate, reference string, origin
 	return ""
 }
 
-func getNote(t stmodels.FeedItem) (models.Note, error) {
+func getNote(t starling.FeedItem) (models.Note, error) {
 	var ret models.Note
 	if t.UserNote != "" && isJson(t.UserNote) {
 		err := json.Unmarshal([]byte(t.UserNote), &ret)

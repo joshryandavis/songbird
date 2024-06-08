@@ -3,14 +3,14 @@ package client
 import (
 	"strings"
 
-	"github.com/joshryandavis/songbird/internal/client/models"
 	"github.com/joshryandavis/songbird/starling"
-	"github.com/joshryandavis/songbird/starling/stmodels"
 
 	log "github.com/sirupsen/logrus"
+
+	"github.com/joshryandavis/songbird/internal/client/models"
 )
 
-func (c *Client) autoCategorise(ac *starling.Client, acc stmodels.Account, newT *models.Transaction) error {
+func (c *Client) autoCategorise(ac *starling.Client, acc starling.Account, newT *models.Transaction) error {
 	for _, cat := range c.Cfg.Categories {
 		if cat.Parent != newT.SpendingCategory {
 			continue
