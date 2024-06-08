@@ -1,11 +1,26 @@
 # songbird
 
-Built on a fork of [https://github.com/chickazama/myna](https://github.com/chickazama/myna) which provides most of the
-models and methods the Starling Bank API, to which I've added.
+```
+Usage: songbird <command> [flags]
 
-Working on a CLI interface to easily access my Starling account data from the terminal. The main feature is the ability
-walk through new transactions to categorise and tag them. In the vein of YNAB but without all the other stuff and
-Starling only.
+a cli interface for starling bank
 
-Motivated by Starling’s bad, slow website that logs you out every few minutes and still does not let you see a joint
-alongside your personal account.
+Flags:
+  -h, --help             Show context-sensitive help.
+  -v, --verbose          Output verbose logs.
+  -a, --account="all"    Account Name or "all".
+
+Commands:
+  balance (bal)        List account balances.
+  recurring (rp)       List recurring payments.
+  direct-debit (dd)    List direct debits.
+  transactions (tx)    List all transactions.
+  accounts (acc)       List all accounts.
+  walk (w)             Walk the transactions tree.
+```
+
+A little Go program for accessing Starling Bank data in the terminal.
+
+The USP is that you can walk through transactions and add whatever metadata you want in the transaction note. This way I can build on top of the Starling API and use the notes as my database. 
+
+Work in progress.
