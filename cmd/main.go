@@ -27,6 +27,7 @@ func Main() {
 		acc := ac.Account
 		switch command {
 		// walk transactions
+		case "w":
 		case "walk":
 			m := cli.Model.Walk
 			var start time.Time
@@ -49,6 +50,7 @@ func Main() {
 				log.Panic("error walking transactions", err)
 			}
 		// list accounts
+		case "acc":
 		case "accounts":
 			accounts, err := ac.Client.GetAccounts()
 			if err != nil {
@@ -56,6 +58,7 @@ func Main() {
 			}
 			cli.PrintResult("accounts", accounts)
 		// get account balance
+		case "bal":
 		case "balance":
 			balance, err := ac.Client.GetAccountBalance(&acc)
 			if err != nil {
@@ -63,6 +66,7 @@ func Main() {
 			}
 			cli.PrintResult("balance", balance)
 		// get recurring payments
+		case "rec":
 		case "recurring":
 			repayments, err := ac.Client.GetRecurringPayments(&acc)
 			if err != nil {
@@ -71,13 +75,15 @@ func Main() {
 			cli.PrintResult("recurring payments", repayments)
 			// get direct debits
 		case "dd":
+		case "direct-debits":
 			dd, err := ac.Client.GetDirectDebitMandates()
 			if err != nil {
 				log.Panic("error getting direct debits", err)
 			}
 			cli.PrintResult("direct debits", dd)
 		// get transactions
-		case "client":
+		case "tx":
+		case "transactions":
 			items, err := ac.Client.GetFeedItems(&acc, acc.CreatedAt.Time)
 			if err != nil {
 				log.Panic("error getting transactions", err)

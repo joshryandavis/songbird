@@ -1,5 +1,5 @@
-#.zed/
-#.idea/
+.zed/
+.idea/
 .vscode/
 .DS_Store
 
@@ -9,3 +9,4 @@ tokens.json
 bin/
 pkl/
 songbird
+

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"sync"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -32,70 +33,84 @@ func (c *Client) GetTransactions(ac *starling.Client, acc stmodels.Account, dt t
 	if err != nil {
 		return rec, err
 	}
+
+	var wg sync.WaitGroup
+	ch := make(chan models.Transaction)
 	for _, t := range items {
-		var n models.Note
-		var directDebitUid string
-		var recurringUid string
 		if t.Amount.Amount.Amount == 0 {
 			log.Println("skipping client", t.FeedItemUID, "as it has a zero amount")
 			continue
 		}
-		for _, r := range recurring {
-			if r.FeedItemUID == t.FeedItemUID {
-				recurringUid = r.RecurringPaymentUID
-				break
-			}
-		}
-		for _, d := range dd {
-			// if the reference and originator name match, we can assume it's the same direct debit
-			// as starling doesn't provide a direct link between the two
-			if d.Reference == t.Reference && d.OriginatorName == t.CounterPartyName {
-				directDebitUid = d.UID
-				break
-			}
-		}
-		if t.UserNote != "" && isJson(t.UserNote) {
-			err := json.Unmarshal([]byte(t.UserNote), &n)
+		wg.Add(1)
+		go func(t stmodels.FeedItem) {
+			defer wg.Done()
+			newT, err := processNewTransactions(ac, acc, recurring, dd, t, c)
 			if err != nil {
-				log.Fatal("error unmarshalling", t.UserNote, err)
-				return nil, err
+				log.Fatal("error processing new transactions", err)
 			}
-		}
-		newT := NewTransaction(models.Transaction{
-			UID:            t.FeedItemUID,
-			AccountUID:     acc.AccountUID,
-			DirectDebitUID: directDebitUid,
-			RecurringUID:   recurringUid,
-			CategoryUID:    t.CategoryUID,
-			CounterParty: models.CounterParty{
-				UID:  t.CounterPartyUID,
-				Name: t.CounterPartyName,
-				Type: t.CounterPartyType,
-			},
-			Created:          t.TransactionTime.Time,
-			Updated:          t.UpdatedAt.Time,
-			Amount:           t.Amount.Amount.Amount,
-			Direction:        t.Direction,
-			Currency:         t.Amount.Currency.Currency,
-			SpendingCategory: t.SpendingCategory,
-			Reference:        t.Reference,
-			Source:           t.Source,
-			Status:           t.Status,
-			Country:          t.Country,
-			Note:             n,
-		})
-		err := c.autoCategorise(ac, acc, &newT)
-		if err != nil {
-			log.Fatal("error auto categorising", err)
-			return nil, err
-		}
-		rec = append(rec, newT)
+			ch <- newT
+		}(t)
 	}
 	err = writeToTmp(rec)
 	if err != nil {
 		return nil, err
 	}
 	return rec, nil
+}
+
+func processNewTransactions(ac *starling.Client, acc stmodels.Account, recurring []stmodels.RecurringCardPayment, dd []stmodels.DirectDebitMandate, t stmodels.FeedItem, c *Client) (models.Transaction, error) {
+	ret := models.Transaction{}
+	var n models.Note
+	var directDebitUid string
+	var recurringUid string
+	for _, r := range recurring {
+		if r.FeedItemUID == t.FeedItemUID {
+			recurringUid = r.RecurringPaymentUID
+			break
+		}
+	}
+	for _, d := range dd {
+		if d.Reference == t.Reference && d.OriginatorName == t.CounterPartyName {
+			directDebitUid = d.UID
+			break
+		}
+	}
+	if t.UserNote != "" && isJson(t.UserNote) {
+		err := json.Unmarshal([]byte(t.UserNote), &n)
+		if err != nil {
+			log.Fatal("error unmarshalling", t.UserNote, err)
+			return ret, err
+		}
+	}
+	ret = NewTransaction(models.Transaction{
+		UID:            t.FeedItemUID,
+		AccountUID:     acc.AccountUID,
+		DirectDebitUID: directDebitUid,
+		RecurringUID:   recurringUid,
+		CategoryUID:    t.CategoryUID,
+		CounterParty: models.CounterParty{
+			UID:  t.CounterPartyUID,
+			Name: t.CounterPartyName,
+			Type: t.CounterPartyType,
+		},
+		Created:          t.TransactionTime.Time,
+		Updated:          t.UpdatedAt.Time,
+		Amount:           t.Amount.Amount.Amount,
+		Direction:        t.Direction,
+		Currency:         t.Amount.Currency.Currency,
+		SpendingCategory: t.SpendingCategory,
+		Reference:        t.Reference,
+		Source:           t.Source,
+		Status:           t.Status,
+		Country:          t.Country,
+		Note:             n,
+	})
+	err := c.autoCategorise(ac, acc, &ret)
+	if err != nil {
+		log.Fatal("error auto categorising", err)
+		return ret, err
+	}
+	return ret, nil
 }
 
 func writeToTmp(output []models.Transaction) error {
