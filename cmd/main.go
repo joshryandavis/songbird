@@ -84,7 +84,7 @@ func Main() {
 		// get transactions
 		case "tx":
 		case "transactions":
-			items, err := ac.Client.GetFeedItems(&acc, acc.CreatedAt.Time)
+			items, err := c.GetTransactions(ac.Client, acc, acc.CreatedAt.Time)
 			if err != nil {
 				log.Panic("error getting transactions", err)
 			}

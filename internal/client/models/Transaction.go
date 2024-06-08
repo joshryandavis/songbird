@@ -31,3 +31,11 @@ type Transaction struct {
 	Country          string        `json:"country"`
 	Note             Note          `json:"note"`
 }
+
+func NewTransaction(m Transaction) Transaction {
+	// make sure the amount is negative for OUT transactions
+	if m.Direction == "OUT" {
+		m.Amount = m.Amount * -1
+	}
+	return m
+}
