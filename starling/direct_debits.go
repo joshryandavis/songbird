@@ -11,8 +11,7 @@ type DirectDebitMandate struct {
 	Source         string      `json:"source"`
 	Created        DateTime    `json:"created"`
 	Cancelled      DateTime    `json:"cancelled"`
-	NextDate       string      `json:"nextDate"`
-	LastDate       string      `json:"lastDate"`
+	LastDate       DateOnly    `json:"lastDate"`
 	OriginatorName string      `json:"originatorName"`
 	OriginatorUID  string      `json:"originatorUid"`
 	MerchantUID    string      `json:"merchantUid"`

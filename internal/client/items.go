@@ -38,54 +38,26 @@ type Item struct {
 	Note             Note          `json:"note"`
 }
 
-type Note struct {
-	Updated     time.Time `json:"updated"`
-	Split       bool      `json:"split"`
-	Refund      bool      `json:"refund"`
-	Description string    `json:"description"`
-	Category    string    `json:"category"`
-	Comment     string    `json:"note"`
-}
-
-func UpdateNote(n Note, c *starling.Client, acc starling.Account, tUID string, categoryUID string, newNote Note) (Note, error) {
-	var rec = n
-	if newNote == n {
-		log.WithFields(log.Fields{
-			"newNote": newNote,
-			"oldNote": n,
-		}).Printf("note is the same, skipping update")
-		return rec, nil
-	}
-	rec = newNote
-	noteJson, err := json.Marshal(rec)
-	if err != nil {
-		return rec, err
-	}
-	log.Println("updating note for client", tUID)
-	err = c.UpdateUserNote(&acc, categoryUID, tUID, string(noteJson))
-	return rec, err
-}
-
-func (c *Client) GetItems(ac *starling.Client, acc starling.Account, dt time.Time) ([]Item, error) {
+func (c *Client) GetItems(ac *Api, dt time.Time) ([]Item, error) {
 	var err error
 	var ret []Item
 	log.Println("getting direct debit mandates")
-	dd, err := ac.GetDirectDebitMandates()
+	dd, err := ac.Client.GetDirectDebitMandates()
 	if err != nil {
 		return ret, err
 	}
 	log.Println("getting recurring payments")
-	recurring, err := ac.GetRecurringPayments(&acc)
+	recurring, err := ac.Client.GetRecurringPayments(&ac.Account)
 	if err != nil {
 		return ret, err
 	}
 	log.Println("getting feed items")
-	items, err := ac.GetFeedItems(&acc, dt)
+	items, err := ac.Client.GetFeedItems(&ac.Account, dt)
 	if err != nil {
 		return ret, err
 	}
 	var wg sync.WaitGroup
-	ch := make(chan Item)
+	// ch := make(chan Item)
 	for _, t := range items {
 		if t.Amount.Amount.Amount == 0 {
 			log.Println("skipping client", t.FeedItemUID, "as it has a zero amount")
@@ -94,18 +66,19 @@ func (c *Client) GetItems(ac *starling.Client, acc starling.Account, dt time.Tim
 		wg.Add(1)
 		go func(t starling.FeedItem) {
 			defer wg.Done()
-			newT, err := processItem(ac, acc, recurring, dd, t, c)
+			newT, err := processItem(ac, recurring, dd, t, c)
 			if err != nil {
 				log.Fatal("error processing new transactions", err)
 			}
-			ch <- newT
-			ret = append(ret, <-ch)
+			// ch <- newT
+			// ret = append(ret, <-ch)
+			ret = append(ret, newT)
 		}(t)
 	}
 	return ret, nil
 }
 
-func processItem(ac *starling.Client, acc starling.Account, recurring []starling.RecurringCardPayment, dd []starling.DirectDebitMandate, t starling.FeedItem, c *Client) (Item, error) {
+func processItem(ac *Api, recurring []starling.RecurringCardPayment, dd []starling.DirectDebitMandate, t starling.FeedItem, c *Client) (Item, error) {
 	ret := Item{}
 	note, err := parseNote(t)
 	if err != nil {
@@ -116,7 +89,7 @@ func processItem(ac *starling.Client, acc starling.Account, recurring []starling
 		Amount:         normaliseAmount(&t),
 		DirectDebitUID: getDirectDebitId(dd, t.Reference, t.CounterPartyName),
 		RecurringUID:   getRecurringId(recurring, t.FeedItemUID),
-		AccountUID:     acc.AccountUID,
+		AccountUID:     ac.Account.AccountUID,
 		CategoryUID:    t.CategoryUID,
 		UID:            t.FeedItemUID,
 		CounterParty: CounterParty{
@@ -134,7 +107,7 @@ func processItem(ac *starling.Client, acc starling.Account, recurring []starling
 		Status:           t.Status,
 		Country:          t.Country,
 	}
-	err = c.autoCategorise(ac, acc, &ret)
+	err = c.autoCategorise(ac, &ret)
 	if err != nil {
 		log.Fatal("error auto categorising", err)
 		return ret, err
@@ -180,7 +153,7 @@ func parseNote(t starling.FeedItem) (Note, error) {
 	return ret, nil
 }
 
-func (c *Client) autoCategorise(ac *starling.Client, acc starling.Account, newT *Item) error {
+func (c *Client) autoCategorise(ac *Api, newT *Item) error {
 	for _, cat := range c.Cfg.Categories {
 		if cat.Parent != newT.SpendingCategory {
 			continue
@@ -193,7 +166,7 @@ func (c *Client) autoCategorise(ac *starling.Client, acc starling.Account, newT 
 					continue
 				}
 				log.Println("new found match", newT.CounterParty.Name, "in", cat.Name)
-				_, err := UpdateNote(newT.Note, ac, acc, newT.UID, newT.CategoryUID, newNote)
+				_, err := UpdateNote(newT.Note, ac, newT.UID, newT.CategoryUID, newNote)
 				if err != nil {
 					log.Fatal("error updating note", err)
 					return err
@@ -204,6 +177,7 @@ func (c *Client) autoCategorise(ac *starling.Client, acc starling.Account, newT 
 	}
 	return nil
 }
+
 func normaliseCategory(cat string) string {
 	replacer := strings.NewReplacer("-", "", "_", "", "'", "", ".", "")
 	cat = replacer.Replace(strings.ToLower(strings.TrimSpace(cat)))

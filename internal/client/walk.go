@@ -12,9 +12,7 @@ import (
 )
 
 func (c *Client) WalkItems(ac *Api, start time.Time, end time.Time, newOnly bool) error {
-	acc := ac.Account
-	log.Println("getting items from", start, "to", end)
-	trans, err := c.GetItems(ac.Client, acc, end)
+	trans, err := c.GetItems(ac, end)
 	if err != nil {
 		return err
 	}
@@ -29,7 +27,7 @@ func (c *Client) WalkItems(ac *Api, start time.Time, end time.Time, newOnly bool
 			log.Println("note is the same, skipping update")
 			continue
 		}
-		t.Note, err = UpdateNote(t.Note, ac.Client, acc, t.UID, t.CategoryUID, updatedNote)
+		t.Note, err = UpdateNote(t.Note, ac, t.UID, t.CategoryUID, updatedNote)
 		if err != nil {
 			break
 		}

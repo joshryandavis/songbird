@@ -14,10 +14,6 @@ type Balance struct {
 	TotalEffectiveBalance SignedCurrencyAndAmount `json:"totalEffectiveBalance"`
 }
 
-type Balances struct {
-	Balances []Balance `json:"balances"`
-}
-
 func (c *Client) GetAccountBalance(a *Account) (Balance, error) {
 	var ret Balance
 	url := AccountEndpoint(a.AccountUID, BalanceEndpoint)

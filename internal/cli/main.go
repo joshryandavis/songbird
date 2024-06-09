@@ -18,8 +18,8 @@ var Model struct {
 	Verbose      verboseFlag `cmd:"" help:"Output verbose logs." short:"v"`
 	Account      string      `cmd:"" help:"Account Name or \"all\"." short:"a" default:"all"`
 	Balance      struct{}    `cmd:"" help:"List account balances." aliases:"bal"`
-	Recurring    struct{}    `cmd:"" help:"List recurring card payments." aliases:"rp"`
-	DirectDebit  struct{}    `cmd:"" help:"List direct debits." aliases:"dd"`
+	Recurring    struct{}    `cmd:"" help:"List recurring card payments." aliases:"rec"`
+	DirectDebits struct{}    `cmd:"" help:"List direct debits." aliases:"dd"`
 	Transactions struct{}    `cmd:"" help:"Parse and list all transactions." aliases:"tx"`
 	Accounts     struct{}    `cmd:"" help:"List all accounts." aliases:"acc"`
 	Walk         struct {

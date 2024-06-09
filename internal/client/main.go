@@ -3,12 +3,15 @@ package client
 import (
 	"github.com/joshryandavis/songbird/starling"
 
+	"github.com/joshryandavis/songbird/internal/calendar"
 	"github.com/joshryandavis/songbird/internal/config"
+	"github.com/rickar/cal/v2"
 )
 
 type Client struct {
 	Cfg config.Cfg
 	Api []Api
+	Cal *cal.BusinessCalendar
 }
 
 type Api struct {
@@ -20,6 +23,7 @@ type Api struct {
 func New(tokens []string, cfg config.Cfg) *Client {
 	ret := new(Client)
 	ret.Cfg = cfg
+	ret.Cal = calendar.NewCalendar()
 	for _, token := range tokens {
 		ret.Api = append(ret.Api, Api{
 			Token:  token,
