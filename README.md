@@ -12,4 +12,4 @@ Its USP is that it allows for custom metadata to be addedd to tranactions in the
 
 Note: the code that calculates future payment dates is hard-coded to use English bank holidays. 
 
-**Work in progress**.
+**Work in progress**. Most of what I want to do is not implemented yet.
