@@ -1,23 +1,10 @@
-# Songbird
+# songbird
 
-```
-Usage: songbird <command> [flags]
+Install: `go install github.com/joshryandavis/songbird@latest`
 
-a cli interface for starling bank
+Usage: `songbird --help`
 
-Flags:
-  -h, --help             Show context-sensitive help.
-  -v, --verbose          Output verbose logs.
-  -a, --account="all"    Account Name or "all".
-
-Commands:
-  balance (bal)        List account balances.
-  recurring (rp)       List recurring payments.
-  direct-debit (dd)    List direct debits.
-  transactions (tx)    List all transactions.
-  accounts (acc)       List all accounts.
-  walk (w)             Walk the transactions tree.
-```
+---
 
 A little Go program for accessing Starling Bank data in the terminal, planning budgets and managing upcoming payments.
 
