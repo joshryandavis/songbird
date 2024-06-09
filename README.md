@@ -1,4 +1,4 @@
-# songbird
+# Songbird
 
 ```
 Usage: songbird <command> [flags]
@@ -19,8 +19,10 @@ Commands:
   walk (w)             Walk the transactions tree.
 ```
 
-A little Go program for accessing Starling Bank data in the terminal.
+A little Go program for accessing Starling Bank data in the terminal, planning budgets and managing upcoming payments.
 
-The USP is that you can walk through transactions and add whatever metadata you want in the transaction note. This way I can build on top of the Starling API and use the notes as my database. 
+Its USP is that it allows for custom metadata to be addedd to tranactions in the form of JSON embeded in the transaction note. This means no data is kept locally and the state is all stored on Starling. 
 
-Work in progress.
+Note: the code that calculates future payment dates is hard-coded to use English bank holidays. 
+
+**Work in progress**.
